@@ -363,12 +363,8 @@ public class JSONTokener {
      */
     public Object nextValue() throws JSONException {
         char c = nextClean();
-        String s;
 
         switch (c) {
-            case '"':
-            case '\'':
-                return nextString(c);
             case '{':
                 back();
                 return new JSONObject(this);
@@ -376,6 +372,17 @@ public class JSONTokener {
             case '(':
                 back();
                 return new JSONArray(this);
+        }
+        return nextSimpleValue(c);
+    }
+
+    Object nextSimpleValue(char c) throws JSONException {
+        String s;
+
+        switch (c) {
+            case '"':
+            case '\'':
+                return this.nextString(c);
         }
 
         /*

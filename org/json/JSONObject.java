@@ -187,8 +187,7 @@ public class JSONObject {
             case '}':
                 return;
             default:
-                x.back();
-                key = x.nextValue().toString();
+                key = x.nextSimpleValue(c).toString();
             }
 
             /*
