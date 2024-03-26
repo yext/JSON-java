@@ -214,6 +214,9 @@ public class JSONObject {
                 if (x.nextClean() == '}') {
                     return;
                 }
+                if (x.end()) {
+                    throw x.syntaxError("A JSONObject text must end with '}'");
+                }
                 x.back();
                 break;
             case '}':

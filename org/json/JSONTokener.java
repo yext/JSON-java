@@ -39,6 +39,7 @@ SOFTWARE.
 public class JSONTokener {
 
     private int index;
+    private boolean eof;
     private Reader reader;
     private char lastChar;
     private boolean useLastChar;
@@ -50,6 +51,7 @@ public class JSONTokener {
      * @param reader     A reader.
      */
     public JSONTokener(Reader reader) {
+        this.eof = false;
         this.reader = reader.markSupported() ? 
         		reader : new BufferedReader(reader);
         this.useLastChar = false;
@@ -78,6 +80,7 @@ public class JSONTokener {
         }
         index -= 1;
         useLastChar = true;
+        this.eof = false;
     }
 
 
@@ -101,6 +104,10 @@ public class JSONTokener {
         return -1;
     }
 
+    public boolean end() {
+        return eof && !useLastChar;
+    }
+
 
     /**
      * Determine if the source string still contains characters that next()
@@ -108,8 +115,8 @@ public class JSONTokener {
      * @return true if not yet at the end of the source.
      */
     public boolean more() throws JSONException {
-        char nextChar = next();
-        if (nextChar == 0) {
+        next();
+        if (end()) {
             return false;
         } 
         back();
@@ -138,6 +145,7 @@ public class JSONTokener {
         }
 
         if (c <= 0) { // End of stream
+            this.eof = true;
         	this.lastChar = 0;
             return 0;
         } 
@@ -181,27 +189,13 @@ public class JSONTokener {
          char[] buffer = new char[n];
          int pos = 0;
 
-         if (this.useLastChar) {
-        	 this.useLastChar = false;
-             buffer[0] = this.lastChar;
-             pos = 1;
-         }
-
-         try {
-             int len;
-             while ((pos < n) && ((len = reader.read(buffer, pos, n - pos)) != -1)) {
-                 pos += len;
+         while (pos < n) {
+             buffer[pos] = this.next();
+             if (this.end()) {
+                 throw this.syntaxError("Substring bounds error");
              }
-         } catch (IOException exc) {
-             throw new JSONException(exc);
+             pos += 1;
          }
-         this.index += pos;
-
-         if (pos < n) {
-             throw syntaxError("Substring bounds error");
-         }
-
-         this.lastChar = buffer[n - 1];
          return new String(buffer);
      }
 
@@ -400,7 +394,9 @@ public class JSONTokener {
             sb.append(c);
             c = next();
         }
-        back();
+        if (!this.eof) {
+            back();
+        }
 
         /*
          * If it is true, false, or null, return the proper value.
