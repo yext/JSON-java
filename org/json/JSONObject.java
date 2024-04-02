@@ -22,6 +22,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This class includes security patches from the public domain repository
+https://github.com/stleary/JSON-java
 */
 
 import java.io.IOException;
@@ -168,6 +171,9 @@ public class JSONObject {
 
     /**
      * Construct a JSONObject from a JSONTokener.
+     *
+     * This class includes security patches from https://github.com/stleary/JSON-java
+     *
      * @param x A JSONTokener object containing the source string.
      * @throws JSONException If there is a syntax error in the source string.
      */
@@ -187,6 +193,7 @@ public class JSONObject {
             case '}':
                 return;
             default:
+                // https://github.com/stleary/JSON-java/pull/772
                 key = x.nextSimpleValue(c).toString();
             }
 
@@ -214,6 +221,7 @@ public class JSONObject {
                 if (x.nextClean() == '}') {
                     return;
                 }
+                // https://github.com/stleary/JSON-java/pull/759
                 if (x.end()) {
                     throw x.syntaxError("A JSONObject text must end with '}'");
                 }

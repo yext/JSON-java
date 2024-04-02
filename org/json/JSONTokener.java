@@ -27,6 +27,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This class includes security patches from the public domain repository
+https://github.com/stleary/JSON-java
 */
 
 /**
@@ -39,6 +42,7 @@ SOFTWARE.
 public class JSONTokener {
 
     private int index;
+    // https://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONTokener.java
     private boolean eof;
     private Reader reader;
     private char lastChar;
@@ -51,6 +55,7 @@ public class JSONTokener {
      * @param reader     A reader.
      */
     public JSONTokener(Reader reader) {
+        // https://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONTokener.java
         this.eof = false;
         this.reader = reader.markSupported() ? 
         		reader : new BufferedReader(reader);
@@ -80,6 +85,7 @@ public class JSONTokener {
         }
         index -= 1;
         useLastChar = true;
+        // https://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONTokener.java
         this.eof = false;
     }
 
@@ -104,6 +110,14 @@ public class JSONTokener {
         return -1;
     }
 
+    /**
+     * Checks if the end of the input has been reached.
+     *
+     * From the Public Domain repository
+     * https://github.com/stleary/JSON-java
+     *
+     * @return true if at the end of the file and we didn't step back
+     */
     public boolean end() {
         return eof && !useLastChar;
     }
@@ -112,6 +126,10 @@ public class JSONTokener {
     /**
      * Determine if the source string still contains characters that next()
      * can consume.
+     *
+     * Updated to match the version in the Public Domain repository
+     * https://github.com/stleary/JSON-java
+     *
      * @return true if not yet at the end of the source.
      */
     public boolean more() throws JSONException {
@@ -145,6 +163,7 @@ public class JSONTokener {
         }
 
         if (c <= 0) { // End of stream
+            // https://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONTokener.java
             this.eof = true;
         	this.lastChar = 0;
             return 0;
@@ -175,6 +194,9 @@ public class JSONTokener {
     /**
      * Get the next n characters.
      *
+     * Updated to match the version in the Public Domain repository
+     * https://github.com/stleary/JSON-java
+     *
      * @param n     The number of characters to take.
      * @return      A string of n characters.
      * @throws JSONException
@@ -191,6 +213,7 @@ public class JSONTokener {
 
          while (pos < n) {
              buffer[pos] = this.next();
+             // https://github.com/stleary/JSON-java/pull/759
              if (this.end()) {
                  throw this.syntaxError("Substring bounds error");
              }
@@ -351,6 +374,11 @@ public class JSONTokener {
     /**
      * Get the next value. The value can be a Boolean, Double, Integer,
      * JSONArray, JSONObject, Long, or String, or the JSONObject.NULL object.
+     *
+     * Updated to match the version in the Public Domain repository
+     * https://github.com/stleary/JSON-java and incorporate fixes from
+     * https://github.com/stleary/JSON-java/pull/772
+     *
      * @throws JSONException If syntax error.
      *
      * @return An object.
@@ -370,6 +398,11 @@ public class JSONTokener {
         return nextSimpleValue(c);
     }
 
+    /*
+     * Split into a separate method from nextValue() to incorporate
+     * https://github.com/stleary/JSON-java/pull/772 from the
+     * Public Domain repository https://github.com/stleary/JSON-java
+     */
     Object nextSimpleValue(char c) throws JSONException {
         String s;
 
